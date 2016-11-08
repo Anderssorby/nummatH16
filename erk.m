@@ -7,7 +7,7 @@ h = h0;
 
 % Our erk method
 % the order of the method
-p = 4;
+p = 4; %?
 gamma = 1/2;
 s = 4;
 c = [0 2*gamma 1 1];
