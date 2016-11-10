@@ -12,4 +12,5 @@ bt = [(-4*gamma^2+6*gamma-1)/(4*gamma) (-2*gamma+1)/(4*gamma)    gamma          
 
 b = [(6*gamma-1)/(12*gamma)            -1/(12*gamma*(2*gamma - 1)) (-6*gamma^2 + 6*gamma - 1)/(3*(2*gamma - 1)) gamma];
 
+norm = @(x) sqrt(sum(x.^2));
 

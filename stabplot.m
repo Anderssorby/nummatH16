@@ -4,7 +4,7 @@ a = 4; b = 4;
 [x, y] = meshgrid(linspace(-a, a), linspace(-b, b));
 z = x + i*y;
 % Stability function.
-R = abs(1 + z + z.^2/2);
+R = abs((1 + 0.5*z)/(1 - 0.5*z));
 % Make the plot.
 contourf(x, y, R, [1 1], 'k')
 axis equal, axis([-a a -b b]), grid on

@@ -12,20 +12,22 @@ system()
 %    (a(3,3)*a(2,2)*z^2)/((1-gamma*z)^3);
 
 
-gamma = 0.29289
+gamma = 0.29289;
 %R = subs(R)
 
-asp = 4; b = 4;
-[x, y] = meshgrid(linspace(-asp, asp), linspace(-b, b));
+asp = 2; b = 2;
+n = 50;
+[x, y] = meshgrid(linspace(-asp, asp, n), linspace(-b, b, n));
 z = x + i*y;
 % Stability function.
 a = double(subs(a));
-Rvec = abs( (1+gamma*z)/(1-gamma*z) + ...
-    (a(3,2)*z*(1+a(2,1)*z) + a(4,3)*z*(1 + a(3,1)*z))/((1 - gamma*z)^2) + ...
-    a(4,3)*a(3,2)*z^2*(1+a(2,1)*z)/((1-gamma*z)^2) );
+R = abs( (1 + gamma*z)/(1 - gamma*z) + ...
+    (a(3,2)*z*(1 + a(2,1)*z) + a(4,3)*z*(1 + a(3,1)*z))/((1 - gamma*z)^2) + ...
+    a(4,3)*a(3,2)*z^2*(1 + a(2,1)*z)/((1 - gamma*z)^2) );
+Rtest = abs(1 + z);
 % Make the plot.
 figure; clf;
-contourf(x, y, Rvec, [1 1], 'k')
+contourf(x, y, R, [1 1], 'k')
 axis equal, axis([-asp asp -b b]), grid on
 hold on
 plot([-asp, asp], [0, 0], 'k', 'LineWidth', 1);
