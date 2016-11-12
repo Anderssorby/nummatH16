@@ -1,4 +1,4 @@
-system()
+rksystem()
 
 syms h la gamma yn
 

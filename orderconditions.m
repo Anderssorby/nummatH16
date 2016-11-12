@@ -1,4 +1,4 @@
-system()
+rksystem()
 
 % p = 1 a single node
 

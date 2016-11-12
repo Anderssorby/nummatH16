@@ -1,5 +1,5 @@
 format long
-system()
+rksystem()
 
 %syms la h z
 

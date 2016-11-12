@@ -1,41 +1,57 @@
 function [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
-% [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
-% Do one step with an implicit RK−method method.
-% Input arguments:
-% f, jac: the functions f(t, y) and Jac(t, y);
-% tn, yn: time and state variables
-% h: step size
-% Tolit: tolerance for the Newton iterations.
-% Output arguments:
-% tnext, ynext: time and state variables after one step
-% le: Local error estimator.
-% iflag = 1: Iterations are successfull
-% = −1: The iterations fails. t and y are not updated
-[A, g, c, s] = method()
-Y = zeros(s)
-Y(1) = yn;
-for i = 2:s
-    ksum = 0;
-    for j = 1:s
-        ksum = ksum + A(i,j)*f(tn + h*c(i), Y(j));
-    end
+    % [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
+    % Do one step with an implicit RK?method.
+    % Input arguments:
+    %              f, jac: the functions f(t, y) and Jac(t, y);
+    %              tn, yn: time and state variables
+    %                   h: step size
+    %               Tolit: tolerance for the Newton iterations.
+    % Output arguments:
+    %       tnext, ynext: time and state variables after one step
+    %                 le: Local error estimator.
+    %          iflag = 1: Iterations are successfull
+    %               = -1: The iterations fails. t and y are not updated
     
-    cons = yn + h*ksum; 
+    % RK third order method
+   [A, c, g, s] = method;
     
-    % Newton iterations
-    N = cons; % better start value?
-    it = 0;
-    while it < Tolit % count eveluations of jac
-        N = N - jac(tn + h*c(i), N)\(cons + h*f(tn + h*c(i), N)); 
-        it = it + 1;
-    end
-    Y(i) = N;
-end
-%accept?
-iflag = 1;
-le = Y(4) - Y(3);
-ynext = Y(4);
-
-tnext = tn + h
-
+   maxstep = 100;
+   len_yn = length(yn);
+   Y = zeros(len_yn,4); % solution
+   Y(:, 1) = yn;  % initial value
+   Idyy = eye(size(jac));
+   iflag = 1;
+  
+   % For every k
+   for i = 2:s
+        summa = zeros(len_yn,1); %preallocate summation
+        
+        % For sum in RK
+        for j = 1:i-1
+            summa = summa + A(i,j)*f(tn + c(j)*h, Y(:,j));
+        end
+        
+        k = yn + h*summa;
+        it = 0; % Step count
+        temp = Y(:,i)+Tolit*10; % 
+        
+        % Newton fixed point iteration
+        while abs(max((Y(:,i)- temp))) > Tolit && it < maxstep % Jac change
+            
+            lhs = Idyy - h*g*jac(tn+c(i)*h,Y(:,i)-Y(:,i)+k); % approx unchanged in loop
+            temp = Y(:,i); % previous iteration
+            Y(:,i) = temp + lhs\(h*g*f(tn+c(i)*h,Y(:,i))-Y(:,i)+k);
+            it = it + 1;
+        end
+        % if too many steps
+        if it > maxstep
+            iflag = -1;
+            return;
+        end
+   end
+    
+    % Return variables.
+    ynext = Y(:, 4);
+    le = Y(:, 4) - Y(:,3);
+    tnext = tn + h;
 end
