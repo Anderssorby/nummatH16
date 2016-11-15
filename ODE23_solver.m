@@ -1,10 +1,11 @@
-% RK-solver 
+% Constant stepsize RK-solver
 % Solving a system of ordinary differential equations using an embedded
 % pair of implicit methods. One second order and one third order method.
 
 function [Ya, Ye, tn] = ODE23_solver(y0, t, h , jac, fun)
+format long
 
-Tolit = 1e-6; % Tolerance for Newton iterations
+Tolit = 1e-7; % Tolerance for Newton iterations
 tn = t(1);
 tend = t(2);
 iterations = ceil((tend-tn) / h); 

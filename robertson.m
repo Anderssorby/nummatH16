@@ -1,4 +1,5 @@
-function [ yd ] = robertson(t, y )
+
+function [ yd ] = robertson(t,y)
 
 
 
@@ -11,4 +12,3 @@ yd = [
 
 
 end
-

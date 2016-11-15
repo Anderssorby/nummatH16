@@ -1,4 +1,5 @@
 function [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
+format long
     % [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
     % Do one step with an implicit RK?method.
     % Input arguments:
@@ -19,7 +20,7 @@ function [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
    len_yn = length(yn);
    Y = zeros(len_yn,4); % solution
    Y(:, 1) = yn;  % initial value
-   Idyy = eye(size(jac));
+   Idyy = eye(size(jac(tn,yn)));
    iflag = 1;
   
    % For every k
@@ -33,14 +34,15 @@ function [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
         
         k = yn + h*summa;
         it = 0; % Step count
+        
         temp = Y(:,i)+Tolit*10; % 
         
         % Newton fixed point iteration
-        while abs(max((Y(:,i)- temp))) > Tolit && it < maxstep % Jac change
+        while max(abs(Y(:,i)- temp)) > Tolit && it < maxstep % Jac change
             
-            lhs = Idyy - h*g*jac(tn+c(i)*h,Y(:,i)-Y(:,i)+k); % approx unchanged in loop
             temp = Y(:,i); % previous iteration
-            Y(:,i) = temp + lhs\(h*g*f(tn+c(i)*h,Y(:,i))-Y(:,i)+k);
+            lhs = Idyy - h*g*jac(tn+c(i)*h,temp); % jacobian calc
+            Y(:,i) = temp + lhs\(h*g*f(tn+c(i)*h,temp)-temp+k);
             it = it + 1;
         end
         % if too many steps
