@@ -1,4 +1,4 @@
-function [tnext, ynext, le, iflag, njac, nfun] = onestep_adapt(fun, jac, tn, yn, h, Tolit)
+function [tnext, ynext, le, iflag, njac, nfun] = onestep_adapt_mod(fun, jac, tn, yn, h, Tolit)
 format long
     % [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
     % Do one step with an implicit RK?method.
@@ -27,8 +27,9 @@ format long
   
    % For every k
    for i = 2:s
-        summa = zeros(len_yn,1); %preallocate summation
-        
+        %summa = zeros(len_yn,1); %preallocate summation
+        summa = 0;        
+
         % For sum in RK
         for j = 1:i-1
             summa = summa + A(i,j)*fun(tn + c(j)*h, Y(:,j)); % fun calc
@@ -37,22 +38,25 @@ format long
         
         k = yn + h*summa;
         it = 0; % Step count
-        lhs = Idyy - h*g*jac(tn+c(i)*h,temp); % jacobian calc
+        lhs = Idyy - h*g*jac(tn+c(i)*h,Y(:,i)); % jacobian calc
         temp = Y(:,i)+Tolit*10; % 
         
         % Newton fixed point iteration
         while max(abs(Y(:,i)- temp)) > Tolit % Jac change
                     % if too many steps
-         if it >= maxit
-            iflag = -1;
-            tnext = tn;
-            ynext = yn;
-            le = yn;
-            return;
-        end
+             if it >= maxit
+                iflag = -1;
+                tnext = tn;
+                ynext = yn;
+                le = yn;
+                return;
+             end
+
             temp = Y(:,i); % previous iteration
             Y(:,i) = temp + lhs\(h*g*fun(tn+c(i)*h,temp)-temp+k); % func calc
             it = it + 1; nfun = nfun + 1; njac = njac + 1; % Counters
+           
+            lhs = Idyy - h*g*jac(tn+c(i)*h,temp); % jacobian calc
         end
 
    end
