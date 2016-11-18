@@ -1,7 +1,7 @@
-function [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
+function [tnext, ynext, y3next, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
 format long
     % [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
-    % Do one step with an implicit RK?method.
+    % Do one step with an implicit RK-method.
     % Input arguments:
     %              f, jac: the functions f(t, y) and Jac(t, y);
     %              tn, yn: time and state variables
@@ -38,7 +38,7 @@ format long
         temp = Y(:,i)+Tolit*10; % 
         
         % Newton fixed point iteration
-        while max(abs(Y(:,i)- temp)) > Tolit && it < maxstep % Jac change
+        while max(abs(Y(:,i)- temp)) > Tolit && it < maxstep
             
             temp = Y(:,i); % previous iteration
             lhs = Idyy - h*g*jac(tn+c(i)*h,temp); % jacobian calc
@@ -56,4 +56,5 @@ format long
     ynext = Y(:, 4);
     le = Y(:, 4) - Y(:,3);
     tnext = tn + h;
+    y3next = Y(:, 3);
 end

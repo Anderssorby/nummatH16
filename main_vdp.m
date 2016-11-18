@@ -3,28 +3,33 @@ clc
 clear all 
 close all
 
-fun = @(t, y) vanDerPol(t,y);
-jac = @(t,y) vdp_jac(t,y);
+my = 50;
+fun = @(t, y) vanDerPol(t,y, my);
+jac = @(t,y) vdp_jac(t,y, my);
 y0 = [1;2];
-t = [0,1];
+t = [0,my];
 Tol = 1E-5;
 
 % Solving for several stepsizes 
-h = [0.1, 0.01, 0.001, 0.0001];
+h = [0.1, 0.01, 0.001, 0.0001, 0.00001];
 h_len = length(h);
 
  
 max_err = zeros(h_len,1);
 max_errmeth = zeros(h_len,1);
  % Constant stepsize solver of third order
+ 
+     options = odeset('RelTol',1e-8,'AbsTol',1e-10);
+    [tanal, Yanal] = ode15s(fun,t,y0, options);
 for j = 1: h_len 
     % Constant stepsize solver
-    [Ya, le, tn] = ODE23_solver(y0, t, h(j), jac, fun);
+    [Ya, le, Y3, tn] = ODE23_solver(y0, t, h(j), jac, fun);
+    [Y3, tn] = ODE2_solver(y0, t, h(j), jac, fun);
 
-    [tanal, yanal] = ode15s(fun,t,y0);
     
-    max_err(j) = norm(yanal(end,:)'-Ya(:,end));
-    max_errmeth(j) = max(le(:,end));
+    
+    max_err(j) = max(norm(Yanal(end,:)'-Ya(:,end)));
+    max_errmeth(j) = max(norm(Yanal(end,:)'-Y3(:,end)));
 end
 
 
@@ -39,13 +44,37 @@ figure;
 subplot(2,1,1);loglog(h,max_err);
 hold on; axis([h(h_len)/10 h(1)*10 min(max_err)/10 max(max_err)*10])
 xlabel('Step size');ylabel('Error');
-title('Loglogerror advancing method for the van der pol problem');
+title('Loglogerror advancing method for VDP problem');
+
+%Add line to show order of method
+
+line = zeros(2,1);
+line(1) = h(1)^3/10000;
+line(2) = h(end)^3/10000;
+hvec = [h(1);h(end)];
+
+
+loglog(hvec, line);
+
+%Third order plot
+
+
 hold on; 
 subplot(2,1,2);loglog(h,max_errmeth,'r');
-hold on; axis([min(h)/10 max(h)*10 min(max_errmeth)/10 max(max_errmeth)*10])
+hold on; axis([h(h_len)/10 h(1)*10 min(max_errmeth)/10 max(max_errmeth)*10])
 xlabel('Step size');ylabel('Error');
-title('Loglogerror error method for the van der pol problem')
+title('Loglogerror error method for linear test problem')
 
+%Add line to show order of method
+
+
+line = zeros(2,1);
+line(1) = h(1)^2/1000;
+line(2) = h(end)^2/1000;
+hvec = [h(1);h(end)];
+
+
+loglog(hvec, line);
 
 
  %----------------------------------------------------------------------
