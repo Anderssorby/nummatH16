@@ -1,59 +1,76 @@
-function [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
+%% Newton fixed point iteration 
+% ------------------------------------------------------------------------
+% Do one step with an implicit RK23 method. The formulas referred to is
+% given in the project description.
+% ------------------------------------------------------------------------
+% Input arguments:
+%              f, jac: the functions f(t, y) and Jac(t, y);
+%              tn, yn: time and state variables
+%                   h: step size
+%               Tolit: tolerance for the Newton iterations.
+% Output arguments:
+%       tnext, ynext: time and state variables after one step
+%                 le: Local error estimator.
+%          iflag = 1: Iterations are successfull
+%               = -1: The iterations fails. t and y are not updated
+%
+% ------------------------------------------------------------------------
+%% [tnext, ynext, le, iflag, njac, nfun] = onestep(f, jac, tn, yn, h, Tolit)
+% ------------------------------------------------------------------------
+function [tnext, ynext, le, iflag, njac, nfun] = onestep(f, jac, tn, yn, h, Tolit)
 format long
-    % [tnext, ynext, le, iflag] = onestep(f, jac, tn, yn, h, Tolit)
-    % Do one step with an implicit RK?method.
-    % Input arguments:
-    %              f, jac: the functions f(t, y) and Jac(t, y);
-    %              tn, yn: time and state variables
-    %                   h: step size
-    %               Tolit: tolerance for the Newton iterations.
-    % Output arguments:
-    %       tnext, ynext: time and state variables after one step
-    %                 le: Local error estimator.
-    %          iflag = 1: Iterations are successfull
-    %               = -1: The iterations fails. t and y are not updated
     
-    % RK third order method
-   [A, c, g, s] = method;
-    
+   [A, c, g, s] = method; % Embedded third order RK 
    maxstep = 100;
    len_yn = length(yn);
-   Y = zeros(len_yn,4); % solution
+   Y = zeros(len_yn,s); % solution
    Y(:, 1) = yn;  % initial value
    Idyy = eye(size(jac(tn,yn)));
+   njac = 1; nfun = 0; % Counters
    iflag = 1;
-  
+   
    % For every k
    for i = 2:s
-        summa = zeros(len_yn,1); %preallocate summation
+        ksum = 0; %preallocate summation
+        Y(:,i) = Y(:,i-1); % Update initial New
         
-        % For sum in RK
-        for j = 1:i-1
-            summa = summa + A(i,j)*f(tn + c(j)*h, Y(:,j));
+        % Summation (3b)
+        for j = 1:(i-1)
+            ksum = ksum + A(i,j)*f(tn + c(j)*h, Y(:,j));
+            nfun = nfun +1; % Count
         end
         
-        k = yn + h*summa;
+        k = yn + h*ksum;
         it = 0; % Step count
         
-        temp = Y(:,i)+Tolit*10; % 
-        
         % Newton fixed point iteration
-        while max(abs(Y(:,i)- temp)) > Tolit && it < maxstep % Jac change
+        while it <= maxstep
             
-            temp = Y(:,i); % previous iteration
-            lhs = Idyy - h*g*jac(tn+c(i)*h,temp); % jacobian calc
-            Y(:,i) = temp + lhs\(h*g*f(tn+c(i)*h,temp)-temp+k);
-            it = it + 1;
+            lhs = Idyy - h*g*jac(tn+c(i)*h,Y(:,i)); % jacobian update
+            
+            % Newton iteration (4) 
+            del_Y = lhs\(h*g*f(tn+c(i)*h,Y(:,i))-Y(:,i)+k); 
+            Y(:,i) = Y(:,i) + del_Y; 
+            it = it + 1; njac = njac +1;nfun = nfun +1; % Counters
+            
+            if norm(del_Y) <= Tolit % If converged
+                break;
+            end
         end
-        % if too many steps
+        
+        % if too many iterations
         if it > maxstep
+            % Return variables.
+            ynext = yn;
+            le = 0;
+            tnext = tn;
             iflag = -1;
             return;
         end
    end
     
     % Return variables.
-    ynext = Y(:, 4);
-    le = Y(:, 4) - Y(:,3);
-    tnext = tn + h;
+    ynext = Y(:, s); % update (3c)
+    le = Y(:, s) - Y(:,s-1); % Update (3d)
+    tnext = tn + h; 
 end

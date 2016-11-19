@@ -1,4 +1,4 @@
-function y = analLinTest(t)
+function y = lintest_anal(t)
     %Gives analytic solution to linear test problem
     len = length(t);
     y = zeros(2,len);

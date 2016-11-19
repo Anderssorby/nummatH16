@@ -1,0 +1,13 @@
+[2016/11/18 08:22:37.253, jusched.exe (PID: 3680, TID: 3728), AllUtils.cpp:125 (logit)]
+	INFO: **************** Running jusched ****************
+
+[2016/11/18 08:27:37.227, jusched.exe (PID: 3680, TID: 3728), AllUtils.cpp:125 (logit)]
+	INFO: JavaUpdate  [Critical] :  LastFinishTime is after LastScheduledTime, sleeping until next schedule Time: Mon Nov 21 21:27:00 2016
+
+[2016/11/18 08:27:37.227, jusched.exe (PID: 3680, TID: 3728), AllUtils.cpp:125 (logit)]
+	INFO: JavaUpdate [Critical] NextSchedTime=Mon Nov 21 21:27:00 2016
+JavaUpdate [Critical]lastSchedTime=Mon Nov 14 21:27:00 2016
+JavaUpdate [Critical]nextSchedTime=Mon Nov 21 21:27:00 2016
+JavaUpdate [Critical]sleeptime (sec=305963, hours=84, days=3.54)
+actual sleep time=305963000 msecs (84:59:23) for JavaUpdate [Critical]
+

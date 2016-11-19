@@ -5,7 +5,7 @@
 function [Ya, Ye, tn] = ODE23_solver(y0, t, h , jac, fun)
 format long
 
-Tolit = 1e-7; % Tolerance for Newton iterations
+Tolit = 1e-9; % Tolerance for Newton iterations
 tn = t(1);
 tend = t(2);
 iterations = ceil((tend-tn) / h); 

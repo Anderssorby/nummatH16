@@ -1,39 +1,57 @@
 % Adaptive RK-solver
-% Solving a system of ordinary differential equations using an embedded
-% pair of implicit methods. One second order and one third order method.
-
+% ------------------------------------------------------------------------
+% Solving a system of ordinary differential equations using a RK23 method.
+% ------------------------------------------------------------------------
+% Input arguments:
+%            fun, jac: the functions f(t, y) and Jac(t, y);
+%              tn, yn: time and state variables
+%                  h0: initial step size
+%                 Tol: tolerance for global error.
+% Output arguments:
+%                   t: 
+%                 le: Local error estimator.
+%          iflag = 1: Iterations are successfull
+%               = -1: The iterations fails. t and y are not updated
 function [t, y, iflag, nfun, njac] = RKs(fun, jac, tint, y0, Tol, h0)
 format long
 
-Tolit = Tol*0.1; % Tolerance for Newton iterations
+Tolit = Tol*0.1; % Tolerance per Newton iterations
 njac = 0; nfun = 0;
 t = tint(1);
 tend = tint(2);
 it = 1;
-%Initial conditions
-y(:,1) = y0;
-iflag = -1;
+y(:,1) = y0; %Initial conditions
+h = h0;
 
 
-while abs(t(it) - tend) > Tolit
+while tend ~= t(it)
+    
     % Newton iterations
-    [tnext, ynext, le, iflag, njactemp, nfuntemp] = onestep_adapt(fun, jac, t(it), y(:,it), h0, Tolit);
+    [tnext, ynext, le, iflag, njactemp, nfuntemp] = onestep(fun, jac, t(it), y(:,it), h, Tolit);
     njac = njac + njactemp; nfun = nfun + nfuntemp; % Update counters
-    while iflag == -1
-        h = h0*0.5; 
-        [tnext, ynext, le, iflag, njactemp, nfuntemp] = onestep_adapt(fun, jac, t(it), y(:,it), h, Tolit);
-        njac = njac + njactemp; nfun = nfun + nfuntemp; % Update counters
+    
+    % If not converged
+    if iflag == -1
+        h = h*0.5;
+        
+    % Elseif methods not sufficiently close
+    elseif norm(le) >= Tol
+        h = h*0.5;
+        
+    % Otherwise accept 
+    else
+        h = 0.8 * (Tol/norm(le))^(1/4)*h;
+        y(:,it+1) = ynext;
+        t(it+1) = tnext;
+        it = it + 1;
     end
+    
+    % If to long step on last iteration.
     if tnext > tend
-        [tnext, ynext, le, iflag, njactemp, nfuntemp] = onestep_adapt(fun, jac, t(it), y(:,it), tend-t(it), Tolit);
-        njac = njac + njactemp; nfun = nfun + nfuntemp; % Update counters
+        h = tend-t(it);
     end
-    y(:,it+1) = ynext;
-    t(it+1) = tnext;
-    it = it + 1;
+
 end
-njac
-nfun
 end
 
 

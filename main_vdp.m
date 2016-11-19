@@ -3,26 +3,27 @@ clc
 clear all 
 close all
 
-fun = @(t, y) vanDerPol(t,y);
-jac = @(t,y) vdp_jac(t,y);
-y0 = [1;2];
+my = 50;
+fun = @(t, y) vanDerPol(t,y, my);
+jac = @(t,y) vdp_jac(t,y, my);
+y0 = [2;0];
 t = [0,1];
-Tol = 1E-5;
 
 % Solving for several stepsizes 
-h = [0.1, 0.01, 0.001, 0.0001];
+h = [0.1 0.01 0.001 0.0001];
 h_len = length(h);
 
  
 max_err = zeros(h_len,1);
 max_errmeth = zeros(h_len,1);
  % Constant stepsize solver of third order
+    options = odeset('RelTol',1e-8,'AbsTol',1e-10);
+    [tanal, yanal] = ode15s(fun,t,y0, options);
 for j = 1: h_len 
     % Constant stepsize solver
     [Ya, le, tn] = ODE23_solver(y0, t, h(j), jac, fun);
 
-    [tanal, yanal] = ode15s(fun,t,y0);
-    
+    Ya(:,end)
     max_err(j) = norm(yanal(end,:)'-Ya(:,end));
     max_errmeth(j) = max(le(:,end));
 end
