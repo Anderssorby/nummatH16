@@ -1,53 +1,42 @@
-% Solving linear test problem
+% Solving Van der Pol problem
 clc
-clear all
+clear all 
 close all
 
-fun = @(t, y) lintest(t,y);
-jac = @(t, y) [-2 1; 1 -2];
+my = 50;
+fun = @(t, y) vanDerPol(t,y, my);
+jac = @(t,y) vdp_jac(t,y, my);
 y0 = [1;2];
-t = [0,5];
-Tol = 1e-5;
+t = [0,1];
+Tol = 1E-5;
 
 % Solving for several stepsizes 
-h = [0.1; 0.01; 0.001];
+h = [0.1, 0.01, 0.001];
 h_len = length(h);
 
  
 max_err = zeros(h_len,1);
 max_errmeth = zeros(h_len,1);
-
-
-
- %----------------------------------------------------------------------
  % Constant stepsize solver of third order
- %----------------------------------------------------------------------
+ 
+     options = odeset('RelTol',1e-8,'AbsTol',1e-10);
+    [tanal, Yanal] = ode15s(fun,t,y0, options);
 for j = 1: h_len 
     % Constant stepsize solver
-    [Y4, le, Y3, tn] = ODE23_solver(y0, t, h(j), jac, fun);
+    [Ya, le, Y3, tn] = ODE23_solver(y0, t, h(j), jac, fun);
     [Y3, tn] = ODE2_solver(y0, t, h(j), jac, fun);
-    
-    % analytic solution
-    tint = t(1):h(j):t(2);
-    n = length(tint);
-    Yanal = zeros(2,n);
-    Yanal(:, 1:end) = analLinTest(tint);
 
-    err = zeros(1,n);
-    errmeth = zeros(1,n);
-    for i = 1:n
-        err(i) = norm(Y4(:,i)-Yanal(:,i));
-        errmeth(i) = norm(Y3(:,i)-Yanal(:,i));
-    end
-    max_err(j) = err(i);
-    max_errmeth(j) = errmeth(i);
+    
+    
+    max_err(j) = max(norm(yanal(end,:)'-Ya(:,end)));
+    max_errmeth(j) = max(norm(yanal(end,:)'-Y3(:,end)));
 end
 
 
 % Checking that the order conditions are right 
-ord = polyfit(log(h),log(max_err), 1);
+ord = polyfit(log(h),log(max_err'), 1);
 pnum = ord(1)
-ord = polyfit(log(h),log(max_errmeth), 1);
+ord = polyfit(log(h),log(max_errmeth'), 1);
 pnum = ord(1)
 
 % Creating convergence plot
@@ -87,19 +76,14 @@ hvec = [h(1);h(end)];
 
 loglog(hvec, line);
 
+
  %----------------------------------------------------------------------
- % Constant stepsize solver of third order
+ % Adaptive stepsize solver
  %----------------------------------------------------------------------
 
-%  h0 = 0.1;
-%  
-%     % Adaptive stepsize solver
-%     [t,y,iflag,nfun,njac] = RKs(fun, jac, t, y0, Tol, h0);
-% 
-%     % Analytic solution
-%     Yanal = analLinTest(tint(end));
-%     
-%     err = norm(Yanal- y(:,end));
-
-
-
+ h0 = 0.1;
+ 
+    % Adaptive stepsize solver
+  %  [t,y,iflag,nfun,njac] = RKs(fun, jac, t, y0, Tol, h0);
+    
+ %   err = norm(yanal(end,:)'- y(:,end))

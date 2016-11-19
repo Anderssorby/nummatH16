@@ -1,9 +1,9 @@
-function [A, c, gamma, s] = method
+function [A, c, gamma, s] = method()
 % Our erk method
 % the order of the method
-gamma = 0.435867;
-c = [0 2*gamma 1 1];
+gamma = 0.494306;%0.435867;
 s = 4;
+c = [0 2*gamma 1 1];
 
 A = [0                             0                         0                                      0;
     gamma                          gamma                     0                                      0;
