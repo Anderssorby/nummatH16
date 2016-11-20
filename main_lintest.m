@@ -1,105 +1,74 @@
-% Solving linear test problem
-clc
+%% Main linear test problem
+% ------------------------------------------------------------------------
+% Solving linear test problem with constant step size 
+
 clear all
 close all
 
+%% variable definition
 fun = @(t, y) lintest(t,y);
-jac = @(t, y) [-2 1; 1 -2];
-y0 = [1;2];
-t = [0,5];
-Tol = 1e-5;
-
-% Solving for several stepsizes 
-h = [0.1; 0.01; 0.001];
+jac = @(t, y) lintest_jac(t,y);
+y0 = [1;2]; % Initial values
+tint = [0,1]; % Time interval
+Tol = 1e-7; % Global tolerance
+h = [0.1; 0.01; 0.001]; % Step sizes
 h_len = length(h);
 
  
-max_err = zeros(h_len,1);
-max_errmeth = zeros(h_len,1);
+advmeth = zeros(h_len,1);
+errmeth = zeros(h_len,1);
 
 
 
- %----------------------------------------------------------------------
- % Constant stepsize solver of third order
- %----------------------------------------------------------------------
+%% Solver 
 for j = 1: h_len 
     % Constant stepsize solver
-    [Y4, le, Y3, tn] = ODE23_solver(y0, t, h(j), jac, fun);
-    [Y3, tn] = ODE2_solver(y0, t, h(j), jac, fun);
+    [y, le, t, njac, nfun] = ODE23_solver(y0, tint, h(j) , jac, fun);
     
-    % analytic solution
-    tint = t(1):h(j):t(2);
-    n = length(tint);
-    Yanal = zeros(2,n);
-    Yanal(:, 1:end) = analLinTest(tint);
+    % Analytic solution
+    yanal = lintest_anal(tint(2));
 
-    err = zeros(1,n);
-    errmeth = zeros(1,n);
-    for i = 1:n
-        err(i) = norm(Y4(:,i)-Yanal(:,i));
-        errmeth(i) = norm(Y3(:,i)-Yanal(:,i));
-    end
-    max_err(j) = err(i);
-    max_errmeth(j) = errmeth(i);
+
+    advmeth(j) = max(y(:,end) - yanal(:)); % Advancing method
+    errmeth(j) = max(max(le)); % Error method 
 end
 
 
-% Checking that the order conditions are right 
-ord = polyfit(log(h),log(max_err), 1);
-pnum = ord(1)
-ord = polyfit(log(h),log(max_errmeth), 1);
-pnum = ord(1)
+%% Postprocessing
+% Error conditions
+ord = polyfit(log(h),log(advmeth), 1);
+pnum_adv = ord(1)
+ord = polyfit(log(h),log(errmeth), 1);
+pnum_err = ord(1)
 
-% Creating convergence plot
-figure; 
-subplot(2,1,1);loglog(h,max_err);
-hold on; axis([h(h_len)/10 h(1)*10 min(max_err)/10 max(max_err)*10])
-xlabel('Step size');ylabel('Error');
-title('Loglogerror advancing method for linear test problem');
+% Second order line
+line_2 = zeros(2,1);
+line_2(1) = h(1)^2/10;
+line_2(2) = h(end)^2/10;
+hvec_2 = [h(1);h(end)];
 
-%Add line to show order of method
-
-line = zeros(2,1);
-line(1) = h(1)^3/10000;
-line(2) = h(end)^3/10000;
-hvec = [h(1);h(end)];
-
-
-loglog(hvec, line);
-
-%Third order plot
+% Third order line
+line_3 = zeros(2,1);
+line_3(1) = h(1)^3/100;
+line_3(2) = h(end)^3/100;
+hvec_3 = [h(1);h(end)];
 
 
-hold on; 
-subplot(2,1,2);loglog(h,max_errmeth,'r');
-hold on; axis([h(h_len)/10 h(1)*10 min(max_errmeth)/10 max(max_errmeth)*10])
+% ------------------------------------------------------------------------
+% Convergence plots
+% ------------------------------------------------------------------------
+% Error method
+figure(); grid on;
+subplot(2,1,1);loglog(h,errmeth,'b'); 
+hold on; loglog(hvec_2, line_2,'r');
+%hold on; axis([h(h_len)/10 h(1)*10 min(errmeth)/10 max(errmeth)*10])
 xlabel('Step size');ylabel('Error');
 title('Loglogerror error method for linear test problem')
 
-%Add line to show order of method
-
-
-line = zeros(2,1);
-line(1) = h(1)^2/1000;
-line(2) = h(end)^2/1000;
-hvec = [h(1);h(end)];
-
-
-loglog(hvec, line);
-
- %----------------------------------------------------------------------
- % Constant stepsize solver of third order
- %----------------------------------------------------------------------
-
-%  h0 = 0.1;
-%  
-%     % Adaptive stepsize solver
-%     [t,y,iflag,nfun,njac] = RKs(fun, jac, t, y0, Tol, h0);
-% 
-%     % Analytic solution
-%     Yanal = analLinTest(tint(end));
-%     
-%     err = norm(Yanal- y(:,end));
-
-
+% Advancing method
+subplot(2,1,2);loglog(h,advmeth, 'b'); 
+hold on; loglog(hvec_3, line_3, 'r');
+%hold on; axis([h(h_len)/10 h(1)*10 min(advmeth)/10 max(advmeth)*10])
+xlabel('Step size');ylabel('Error');
+title('Loglogerror advancing method for linear test problem')
 

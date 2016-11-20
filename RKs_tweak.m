@@ -12,7 +12,7 @@
 %                 le: Local error estimator.
 %          iflag = 1: Iterations are successfull
 %               = -1: The iterations fails. t and y are not updated
-function [t, y, iflag, nfun, njac] = RKs(fun, jac, tint, y0, Tol, h0)
+function [t, y, iflag, nfun, njac] = RKs_tweak(fun, jac, M, tint, y0, Tol, h0)
 format long
 
 Tolit = Tol*0.1; % Tolerance per Newton iterations
@@ -27,7 +27,7 @@ h = h0;
 while tend ~= t(it)
     
     % Newton iterations
-    [tnext, ynext, le, iflag, njactemp, nfuntemp] = onestep(fun, jac, t(it), y(:,it), h, Tolit);
+    [tnext, ynext, le, iflag, njactemp, nfuntemp] = onestep_tweak(fun, jac, M, t(it), y(:,it), h, Tolit);
     njac = njac + njactemp; nfun = nfun + nfuntemp; % Update counters
     
     % If not converged

@@ -35,11 +35,11 @@ format long
         
         % Summation (3b)
         for j = 1:(i-1)
-            ksum = ksum + A(i,j)*f(tn + c(j)*h, M*V(:,j));
+            ksum = ksum + A(i,j)*f(tn + c(j)*h, V(:,j));
             nfun = nfun +1; % Count
         end
         
-        k = vn + h*ksum;
+        k = M*vn + h*ksum;
         it = 0; % Step count
         
         % Newton fixed point iteration
@@ -48,8 +48,8 @@ format long
             lhs = M - h*g*jac(tn+c(i)*h,V(:,i)); % jacobian update
             
             % Newton iteration (4) 
-            del_Y = lhs\(h*g*f(tn+c(i)*h,V(:,i))-V(:,i)+k); 
-            V(:,i) = V(:,i) + M\del_Y; 
+            del_Y = lhs\(h*g*f(tn+c(i)*h,V(:,i))-M*V(:,i)+k); 
+            V(:,i) = V(:,i) + del_Y; 
             it = it + 1; njac = njac +1;nfun = nfun +1; % Counters
             
             if norm(del_Y) <= Tolit % If converged

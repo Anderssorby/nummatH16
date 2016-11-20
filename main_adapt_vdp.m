@@ -17,50 +17,58 @@ len_Tol = length(Tol);
 h0 = 5; % Initial first step 
 
 
+% Stiff built-in Matlab solver ODE15s.
+options = odeset('RelTol',1e-10,'AbsTol',1e-12);
+[yanal] = ode15s(fun,tint,y0, options);
+yanal.stats
 %% Solver
 for i = 1:len_Tol
     % Adaptive stepsize solver
     [t,y,iflag,nfun,njac] = RKs(fun, jac, tint, y0, Tol(i), h0);
    
-    
-    % Stiff built-in Matlab solver ODE15s.
-     options = odeset('RelTol',1e-8,'AbsTol',1e-10);
-     [tanal, yanal] = ode15s(fun,tint,y0, options);
-    
     % Work
     werk(i) = nfun + 2*njac;
+    werkmatlab(i) = yanal.stats.nfevals;
     
     % Error 
-    err(i) = norm(yanal(end,:)'- y(:,end));
+    err(i) = norm(yanal.y(:,end)- y(:,end));
     
 end
       
     
 %% Postprocess
     
-    figure(); loglog(Tol, err); grid on
+    figure(); 
+    loglog(Tol, err); grid on
     hold on 
     xlabel('Tolerance'); ylabel('Error'); 
-    title('Error Van der Pol oscillator');    
+    title('Error Van der Pol oscillator, my = 50');    
     
-    figure(); loglog(Tol , werk); grid on 
+    figure(); 
+    loglog(err, werk); grid on 
     hold on
-    xlabel('Tolerance'); ylabel('Work');
-    title('Work Van der Pol oscillator');
+    loglog(err,werkmatlab);
+    xlabel('error'); ylabel('Work');
+    title('Work precision diagram Van der Pol oscillator, my = 50');
+    legend('ODE23','ODE15s')
     
-    figure(); plot(t,y(1,:), '-o');
+    figure(); 
+    subplot(2,1,1)
+    plot(t,y(1,:), '-o');
     hold on 
     xlabel('t');ylabel('y1');
-    title('Van der Pol oscillator'); 
+    title('Van der Pol oscillator, my = 50'); 
     
-    figure(); plot(t,y(2,:), '-o',tanal,yanal(:,2),'r');
+    hold on
+    subplot(2,1,2)
+    plot(t,y(2,:), '-o',yanal.x,yanal.y(2,:),'r');
     hold on
     xlabel('t'); ylabel('y2');
-    title('Van der Pol oscillator');
+    title('Van der Pol oscillator, my = 50');
     legend('ODE23','ODE15s');
     
-    
-    figure();plot(t, y(1,:), 'b');
+    figure();
+    plot(t, y(1,:), 'b');
     hold on 
     xlabel('t'); ylabel('y1');
-    title('Van der Pol oscillator');
+    title('Van der Pol oscillator, my = 50');

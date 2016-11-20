@@ -29,36 +29,37 @@ for i = 1:len_Tol
     werk(i) = nfun + 2*njac;
     
     % Error 
-    err(i) = norm(yanal(:,end)-y(:,end));
-    
+    err(i) = norm(yanal(:,end)-y(:,end));  
 end
       
     
 %% Postprocess
     
-    figure(); loglog(Tol, err);
+    figure(); grid on
+    loglog(Tol, err);
     hold on 
     xlabel('Tolerance'); ylabel('Error');
     title('Error linear test equation');    
     
-    figure(); loglog(Tol , werk);
+    figure(); grid on
+    loglog(err , werk);
     hold on
-    xlabel('Tolerance'); ylabel('Work');
+    xlabel('Error'); ylabel('Work');
     title('Work linear test equation');
     
-    figure(); plot(t,y(1,:), '-o');
+    figure(); 
+    subplot(2,1,1)
+    plot(t,y(1,:), '-o');
     hold on 
     xlabel('t');ylabel('y1');
     title('Linear test equation'); 
     
-    figure(); plot(t,y(2,:), '-o',t,yanal(2,:),'r');
+    hold on
+    subplot(2,1,2)
+    plot(t,y(2,:), '-o',t,yanal(2,:),'r');
     hold on
     xlabel('t'); ylabel('y2');
     title('Linear test equation');
     legend('ODE23','Analytic');
     
     
-    figure();plot(t, y(1,:), 'b');
-    hold on 
-    xlabel('t'); ylabel('y1');
-    title('Linear test equation');
