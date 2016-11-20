@@ -44,11 +44,20 @@ z5 = -(1+A)*(V(t)-y)/R;
 figure();
 hold on;
 subplot(2,3,1);plot(t,y(1,:))
+title('V(t)');
+hold on;
 a = subplot(2,3,2);plot(t,z2(:))
+title('u_2');
+hold on;
 subplot(2,3,3);plot(t,z3(:))
+title('u_3');
+hold on;
 subplot(2,3,4);plot(t,z4(:))
-subplot(2,3,5);plot(t,z5(:))  
-title(a, 'Using old solver and ODE form of problem');
+title('u_4');
+hold on;
+subplot(2,3,5);plot(t,z5(:)) 
+title('I_a');
+hold on;
 
 %% Solver
 for i = 1:len_Tol
@@ -59,11 +68,15 @@ for i = 1:len_Tol
     werk(i) = nfun + 3*njac;
 end
 
-figure();
+
 hold on;
-subplot(2,3,1);plot(t,y(1,:))
-a = subplot(2,3,2);plot(t,y(2,:))
-subplot(2,3,3);plot(t,y(3,:))
-subplot(2,3,4);plot(t,y(4,:))
-subplot(2,3,5);plot(t,y(5,:))
-title(a, 'Using tweaked solver and DAE form of problem');
+subplot(2,3,1);plot(t,v(t), 'm');
+title('V(t)');
+hold on;
+a = subplot(2,3,2);plot(t,y(2,:),'m')
+hold on;
+subplot(2,3,3);plot(t,y(3,:),'m')
+hold on;
+subplot(2,3,4);plot(t,y(4,:),'m')
+hold on;
+subplot(2,3,5);plot(t,y(5,:),'m')
