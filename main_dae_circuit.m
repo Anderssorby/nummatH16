@@ -41,11 +41,14 @@ z3 = -A*(V(t)-y(1,:));
 z4 = -(1+A)*z2/R;
 z5 = -(1+A)*(V(t)-y)/R;
 
-figure();plot(t,y(1,:))
-figure();plot(t,z2(:))
-figure();plot(t,z3(:))
-figure();plot(t,z4(:))
-figure();plot(t,z5(:))  
+figure();
+hold on;
+subplot(2,3,1);plot(t,y(1,:))
+a = subplot(2,3,2);plot(t,z2(:))
+subplot(2,3,3);plot(t,z3(:))
+subplot(2,3,4);plot(t,z4(:))
+subplot(2,3,5);plot(t,z5(:))  
+title(a, 'Using old solver and ODE form of problem');
 
 %% Solver
 for i = 1:len_Tol
@@ -56,8 +59,11 @@ for i = 1:len_Tol
     werk(i) = nfun + 3*njac;
 end
 
-figure();plot(t,y(1,:))
-figure();plot(t,y(2,:))
-figure();plot(t,y(3,:))
-figure();plot(t,y(4,:))
-figure();plot(t,y(5,:))
+figure();
+hold on;
+subplot(2,3,1);plot(t,y(1,:))
+a = subplot(2,3,2);plot(t,y(2,:))
+subplot(2,3,3);plot(t,y(3,:))
+subplot(2,3,4);plot(t,y(4,:))
+subplot(2,3,5);plot(t,y(5,:))
+title(a, 'Using tweaked solver and DAE form of problem');

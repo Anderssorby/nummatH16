@@ -1,6 +1,6 @@
 % Adaptive RK-solver
 % ------------------------------------------------------------------------
-% Solving a system of ordinary differential equations using a RK23 method.
+% Solving a system of differential algebraic equations using an RK23 method.
 % ------------------------------------------------------------------------
 % Input arguments:
 %            fun, jac: the functions f(t, y) and Jac(t, y);

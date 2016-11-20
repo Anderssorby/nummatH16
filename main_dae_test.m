@@ -31,7 +31,7 @@ for i = 1:len_Tol
     werk(i) = nfun + 3*njac;
     
     % Error 
-    err(i) = norm(yanal(end,:)'- y(:,end));
+    %err(i) = norm(yanal(end,:)'- y(:,end));
     
 end
       
