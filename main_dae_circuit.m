@@ -46,19 +46,20 @@ hold on;
 subplot(2,3,1);plot(t,y(1,:))
 title('V(t)');
 hold on;
-a = subplot(2,3,2);plot(t,z2(:))
+subplot(2,3,2);plot(t,z2(:))
 title('u_2');
 hold on;
 subplot(2,3,3);plot(t,z3(:))
 title('u_3');
 hold on;
 subplot(2,3,4);plot(t,z4(:))
-title('u_4');
-hold on;
-subplot(2,3,5);plot(t,z5(:)) 
 title('I_a');
 hold on;
-
+subplot(2,3,5);plot(t,z5(:)) 
+title('I_Q');
+hold on;
+subplot(2,3,6);
+text(0,0.65,'ODE form of problem'); axis off;
 %% Solver
 for i = 1:len_Tol
     % Adaptive stepsize solver
@@ -68,15 +69,22 @@ for i = 1:len_Tol
     werk(i) = nfun + 3*njac;
 end
 
-
+figure();
 hold on;
-subplot(2,3,1);plot(t,v(t), 'm');
+subplot(2,3,1);plot(t,V(t), 'm');
+hold on;
 title('V(t)');
-hold on;
 a = subplot(2,3,2);plot(t,y(2,:),'m')
 hold on;
+title('u_2');
 subplot(2,3,3);plot(t,y(3,:),'m')
 hold on;
+title('u_3');
 subplot(2,3,4);plot(t,y(4,:),'m')
 hold on;
+title('I_a');
 subplot(2,3,5);plot(t,y(5,:),'m')
+hold on;
+title('I_Q');
+subplot(2,3,6);
+text(0,0.65, 'DAE form of problem'); axis off;
